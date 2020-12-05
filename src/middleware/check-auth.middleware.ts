@@ -1,7 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import jwt from 'jsonwebtoken';
 import IUserAuth from '../interfaces/users/IUserAuth';
-import config from '../config/keys';
 
 export default (req: Request, res: Response, next: NextFunction): void => {
   try {

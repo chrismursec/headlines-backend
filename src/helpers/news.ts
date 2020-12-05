@@ -1,4 +1,3 @@
-import config from '../config/keys';
 import axios from 'axios';
 import {IApiRequestParams} from '../interfaces/IApiRequestParams';
 

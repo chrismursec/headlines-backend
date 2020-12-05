@@ -5,7 +5,6 @@ import User from '../models/User.model';
 import IUser from '../interfaces/users/IUser';
 import {IAuthenticatedUserResponse} from '../interfaces/users/IAuthenticatedUserResponse';
 import checkAuth from '../middleware/check-auth.middleware';
-import config from '../config/keys';
 import SavedItem from '../models/SavedItem.model';
 import SavedSearch from '../models/SavedSearch.model';
 
