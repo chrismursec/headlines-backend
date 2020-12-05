@@ -1,7 +1,6 @@
 import express, {Request, Response} from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import config from './config/keys';
 import userRoute from './routes/users';
 import newsRoute from './routes/news';
 require('dotenv').config();
