@@ -2,9 +2,10 @@ import config from '../config/keys';
 import axios from 'axios';
 import {IApiRequestParams} from '../interfaces/IApiRequestParams';
 
+
 export const getTopHeadlines = (country?: string | null, category?: string | null, sources?: string | null, q?: string | null, page?: number | null, resultFrom: string | null = 'top-headlines') => {
   const params: IApiRequestParams = {
-    apiKey: config.NEWS_API_KEY,
+    apiKey: process.env.NEWS_API_KEY!,
   };
 
 

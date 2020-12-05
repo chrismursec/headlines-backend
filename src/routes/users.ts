@@ -6,6 +6,8 @@ import IUser from '../interfaces/users/IUser';
 import {IAuthenticatedUserResponse} from '../interfaces/users/IAuthenticatedUserResponse';
 import checkAuth from '../middleware/check-auth.middleware';
 import config from '../config/keys';
+import SavedItem from '../models/SavedItem.model';
+import SavedSearch from '../models/SavedSearch.model';
 
 
 const router: Router = Router();
@@ -54,6 +56,7 @@ router.post('/login', (req: Request, res: Response, next: NextFunction) => {
   let fetchedUser: IUser;
   User.findOne({username: req.body.username})
       .then((user) => {
+        console.log(user);
         if (user != null) {
           fetchedUser = user;
           return bcrypt.compare(req.body.password, user.password);
@@ -65,7 +68,7 @@ router.post('/login', (req: Request, res: Response, next: NextFunction) => {
         }
       })
       .then((result) => {
-        if (result === null) {
+        if (!result) {
           return res.status(401).json({
             message: 'Username or Password incorrect',
           });
@@ -75,7 +78,7 @@ router.post('/login', (req: Request, res: Response, next: NextFunction) => {
               username: fetchedUser.username,
               userId: fetchedUser._id,
             },
-            config.JWT_SECRET,
+            process.env.JWT_SECRET!,
             {
               expiresIn: '1h',
             },
@@ -84,6 +87,7 @@ router.post('/login', (req: Request, res: Response, next: NextFunction) => {
           token: token,
           expiresIn: 3600,
           userId: fetchedUser._id,
+          name: fetchedUser.username,
         };
         return res.status(200).send(response);
       })
@@ -101,11 +105,52 @@ router.get('/users', (req: Request, res: Response) => {
 });
 
 router.delete('/users/:id', checkAuth, (req, res, next) => {
-  User.deleteOne({_id: req.userData!.userId}).then(() => {
-    return res.status(200).json({
-      message: 'deleted',
-    });
-  });
+  SavedItem.deleteMany({owner: req.userData?.userId})
+      .then(() => {
+        SavedSearch.deleteMany({owner: req.userData?.userId})
+            .then(() => {
+              User.deleteOne({_id: req.userData?.userId})
+                  .then(() => {
+                    return res.status(200).json({
+                      message: 'deleted',
+                    });
+                  });
+            });
+      });
+});
+
+
+router.put('/password', checkAuth, (req, res, next) => {
+  const oldPassword = req.body.oldPassword;
+  User.findOne({_id: req.userData!.userId})
+      .then((user) => {
+        if (user === null) {
+          res.status(404).json({
+            message: 'User does not exist',
+          });
+          return;
+        }
+        return bcrypt.compare(oldPassword, user!.password);
+      })
+      .then((result) => {
+        if (!result) {
+          return res.status(401).json({
+            message: 'Incorrect Password',
+          });
+        }
+        bcrypt.hash(req.body.newPassword, 10).then((newHashedPassword) => {
+          User.updateOne(
+              {_id: req.userData!.userId},
+              {
+                password: newHashedPassword,
+              },
+          ).then((result) => {
+            res.status(200).json({
+              message: 'Password Updated',
+            });
+          });
+        });
+      });
 });
 
 export default router;

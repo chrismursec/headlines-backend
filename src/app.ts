@@ -4,12 +4,13 @@ import mongoose from 'mongoose';
 import config from './config/keys';
 import userRoute from './routes/users';
 import newsRoute from './routes/news';
+require('dotenv').config();
 const app = express();
 
-app.set('port', config.PORT || 3000);
+app.set('port', process.env.PORT);
 
 mongoose
-    .connect(config.MONGODB_URI!, {useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true})
+    .connect(process.env.MONGODB_URI!, {useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true})
     .then(() => {
       console.log('Connected to mongo');
     })
